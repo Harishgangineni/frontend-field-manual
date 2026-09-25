@@ -1,0 +1,653 @@
+<title>Frontend Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#F4F6F8; --surface:#FFFFFF; --surface-2:#EAEFF3;
+    --ink:#16223B; --ink-soft:#4B5C72; --ink-faint:#7C8CA0;
+    --border:#D7DEE6;
+    --accent:#1E5FA8; --accent-ink:#0E3E73; --accent-soft:#E3EDF9;
+    --code-bg:#EEF2F6; --code-border:#C9D4DE;
+    --anchor-arch:#1E5FA8; --anchor-tradeoff:#A8620C; --anchor-scale:#A6293A; --anchor-people:#157A5E;
+    --anchor-arch-bg:#E3EDF9; --anchor-tradeoff-bg:#F7ECDC; --anchor-scale-bg:#F7E2E4; --anchor-people-bg:#E1F1EB;
+    --shadow:0 1px 2px rgba(20,33,58,.06), 0 6px 20px rgba(20,33,58,.07);
+    --radius:10px;
+    --font-sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0E1A2B; --surface:#142238; --surface-2:#1A2C46;
+      --ink:#E7EEF7; --ink-soft:#ABBBD0; --ink-faint:#7C8FA8;
+      --border:#2A3F5C;
+      --accent:#7BB0E6; --accent-ink:#BFDCF7; --accent-soft:#1C3654;
+      --code-bg:#101E33; --code-border:#28405F;
+      --anchor-arch:#7BB0E6; --anchor-tradeoff:#E5B067; --anchor-scale:#E48F98; --anchor-people:#6FCBA9;
+      --anchor-arch-bg:#1C3654; --anchor-tradeoff-bg:#3A2E1C; --anchor-scale-bg:#3A2024; --anchor-people-bg:#17332A;
+      --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 26px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1A2B; --surface:#142238; --surface-2:#1A2C46;
+    --ink:#E7EEF7; --ink-soft:#ABBBD0; --ink-faint:#7C8FA8;
+    --border:#2A3F5C;
+    --accent:#7BB0E6; --accent-ink:#BFDCF7; --accent-soft:#1C3654;
+    --code-bg:#101E33; --code-border:#28405F;
+    --anchor-arch:#7BB0E6; --anchor-tradeoff:#E5B067; --anchor-scale:#E48F98; --anchor-people:#6FCBA9;
+    --anchor-arch-bg:#1C3654; --anchor-tradeoff-bg:#3A2E1C; --anchor-scale-bg:#3A2024; --anchor-people-bg:#17332A;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 26px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto!important;} }
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--font-sans);
+    line-height:1.55; margin:0; padding:0 16px; scroll-behavior:smooth;
+  }
+  img{max-width:100%;}
+  a{color:var(--accent-ink);}
+  h1,h2,h3,h4{text-wrap:balance; font-family:var(--font-sans);}
+
+  .app{display:flex; max-width:1400px; margin:0 auto; align-items:flex-start; gap:0;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:280px; flex-shrink:0; position:sticky; top:0; height:100dvh;
+    overflow-y:auto; border-right:1px solid var(--border);
+    padding:22px 16px 40px; background:var(--surface);
+    scrollbar-width:thin;
+  }
+  .sidebar-brand{font-weight:700; font-size:1.05rem; letter-spacing:-.01em;}
+  .sidebar-tagline{font-size:.72rem; color:var(--ink-faint); margin:2px 0 16px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em;}
+  .search-box{
+    width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px;
+    background:var(--surface-2); color:var(--ink); font-family:var(--font-sans);
+    font-size:.83rem; margin-bottom:18px; outline:none;
+  }
+  .search-box:focus-visible{border-color:var(--accent);}
+  .nav-group{margin-bottom:16px;}
+  .nav-group-title{
+    display:block; font-weight:600; font-size:.83rem; padding:5px 8px;
+    border-radius:6px; color:var(--ink); text-decoration:none; margin-bottom:2px;
+  }
+  .nav-group-title:hover, .nav-group-title:focus-visible{background:var(--surface-2);}
+  .nav-link{
+    display:block; font-size:.78rem; padding:5px 8px 5px 22px; color:var(--ink-soft);
+    text-decoration:none; border-radius:6px; border-left:2px solid transparent;
+  }
+  .nav-link:hover, .nav-link:focus-visible{background:var(--surface-2); color:var(--ink);}
+  .nav-link.active{color:var(--accent-ink); border-left-color:var(--accent); background:var(--accent-soft); font-weight:600;}
+  .sidebar-toggle{display:none;}
+  .sidebar-backdrop{display:none;}
+
+  /* ---------- Main ---------- */
+  .main{flex:1; min-width:0; padding-bottom:100px;}
+  .wrap{max-width:860px; margin:0 auto; padding:0 24px;}
+
+  .hero{padding:56px 0 8px;}
+  .hero-eyebrow{font-family:var(--font-mono); font-size:.75rem; letter-spacing:.1em; color:var(--accent); text-transform:uppercase;}
+  .hero h1{font-size:2.5rem; margin:10px 0 14px; font-weight:700; letter-spacing:-.01em;}
+  .hero-sub{font-size:1.05rem; color:var(--ink-soft); max-width:66ch; margin:0 0 24px; line-height:1.7;}
+  .hero-legend{display:flex; flex-wrap:wrap; gap:10px 18px; padding:16px 0 8px; border-top:1px solid var(--border);}
+  .legend-item{display:flex; align-items:center; gap:7px; font-size:.82rem; color:var(--ink-soft);}
+
+  .section-label{
+    font-family:var(--font-mono); font-size:.78rem; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink-faint); margin:40px 0 4px; font-weight:600;
+  }
+  .overview h2.section-label + .section-sub{margin-top:0;}
+  .section-sub{color:var(--ink-soft); font-size:.95rem; margin:0 0 6px; max-width:64ch;}
+
+  .pillar-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin:18px 0 8px;}
+  .pillar-card{
+    display:block; border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+    background:var(--surface); text-decoration:none; color:inherit; box-shadow:var(--shadow);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .pillar-card:hover, .pillar-card:focus-visible{transform:translateY(-2px); border-color:var(--accent);}
+  .pillar-card .card-num{font-family:var(--font-mono); font-size:.68rem; color:var(--accent); letter-spacing:.08em;}
+  .pillar-card h3{margin:6px 0 7px; font-size:1.06rem; font-weight:700;}
+  .pillar-card p{margin:0 0 12px; color:var(--ink-soft); font-size:.88rem; line-height:1.5;}
+  .card-tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .card-tags span{
+    font-size:.66rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.02em;
+    color:var(--ink-faint); background:var(--surface-2); padding:3px 7px; border-radius:10px;
+  }
+
+  section.pillar{margin-top:64px; scroll-margin-top:16px;}
+  .sheet-header{
+    position:relative; border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 28px; background:var(--surface); box-shadow:var(--shadow);
+  }
+  .sheet-header::before,.sheet-header::after{content:'';position:absolute;width:16px;height:16px;border-color:var(--accent);opacity:.55;}
+  .sheet-header::before{top:-1px;left:-1px;border-top:2px solid;border-left:2px solid;border-top-left-radius:4px;}
+  .sheet-header::after{bottom:-1px;right:-1px;border-bottom:2px solid;border-right:2px solid;border-bottom-right-radius:4px;}
+  .sheet-meta{
+    display:flex; gap:14px; align-items:center; font-family:var(--font-mono); font-size:.72rem;
+    letter-spacing:.08em; color:var(--ink-faint); text-transform:uppercase; margin-bottom:10px;
+  }
+  .sheet-meta .sheet-num{color:var(--accent); font-weight:600;}
+  .sheet-title{font-size:1.85rem; margin:0 0 8px; font-weight:700;}
+  .sheet-blurb{color:var(--ink-soft); margin:0 0 16px; max-width:68ch;}
+  .sheet-tags{display:flex; flex-wrap:wrap; gap:8px;}
+  .tag{
+    font-family:var(--font-mono); font-size:.7rem; letter-spacing:.03em; text-transform:uppercase;
+    padding:5px 10px; border:1px solid var(--border); border-radius:20px; color:var(--ink-soft);
+    text-decoration:none; background:var(--surface-2); transition:all .15s ease;
+  }
+  .tag:hover, .tag:focus-visible{border-color:var(--accent); color:var(--accent-ink); background:var(--accent-soft);}
+
+  .pillar-content{padding-top:8px;}
+  .pillar-content > p.loading{color:var(--ink-faint); font-style:italic; padding:24px 0;}
+  .pillar-content .pillar-intro{font-size:1.03rem; color:var(--ink-soft); max-width:70ch; margin:22px 0 4px; line-height:1.75;}
+
+  .md-h2{font-size:1.5rem; margin:48px 0 8px; padding-bottom:10px; border-bottom:2px solid var(--border); scroll-margin-top:20px; font-weight:700;}
+  .md-h3{font-size:1.14rem; margin:30px 0 6px; color:var(--accent-ink); font-weight:600; scroll-margin-top:20px;}
+
+  .pillar-content p{margin:10px 0; max-width:74ch;}
+  .pillar-content > .pillar-intro + * .md-h2:first-child{margin-top:20px;}
+
+  .pillar-content ul{list-style:none; margin:10px 0; padding:0; display:flex; flex-direction:column; gap:6px;}
+  .pillar-content ul li{border-left:3px solid var(--border); padding:6px 12px; border-radius:0 6px 6px 0; background:transparent;}
+  .pillar-content ul li.anchor-arch{border-left-color:var(--anchor-arch); background:var(--anchor-arch-bg);}
+  .pillar-content ul li.anchor-tradeoff{border-left-color:var(--anchor-tradeoff); background:var(--anchor-tradeoff-bg);}
+  .pillar-content ul li.anchor-scale{border-left-color:var(--anchor-scale); background:var(--anchor-scale-bg);}
+  .pillar-content ul li.anchor-people{border-left-color:var(--anchor-people); background:var(--anchor-people-bg);}
+  .anchor-badge{display:inline-block; margin-right:2px;}
+
+  .pillar-content ol{list-style:none; counter-reset:qnum; margin:12px 0; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .pillar-content ol li{counter-increment:qnum; position:relative; padding:2px 0 2px 40px; border-left:none;}
+  .pillar-content ol li::before{
+    content:counter(qnum); position:absolute; left:0; top:0; width:26px; height:26px; border-radius:50%;
+    background:var(--accent); color:var(--surface); font-family:var(--font-mono); font-size:.78rem;
+    font-weight:600; display:flex; align-items:center; justify-content:center;
+  }
+
+  .pillar-content pre{
+    position:relative; background:var(--code-bg); border:1px dashed var(--code-border); border-radius:8px;
+    padding:18px; margin:32px 0 22px; overflow-x:auto; font-family:var(--font-mono); font-size:.83rem;
+    line-height:1.65; color:var(--ink-soft);
+  }
+  .pillar-content pre::before{
+    content:'DIAGRAM'; position:absolute; top:-9px; left:14px; background:var(--bg);
+    padding:0 6px; font-size:.63rem; letter-spacing:.09em; color:var(--ink-faint); font-family:var(--font-mono);
+  }
+  .pillar-content pre code{background:none; border:none; padding:0; font-size:inherit;}
+  .pillar-content p code, .pillar-content li code, .pillar-content h2 code, .pillar-content h3 code, .pillar-content h4 code, .pillar-content td code{
+    background:var(--code-bg); border:1px solid var(--code-border); padding:1px 5px; border-radius:4px;
+    font-family:var(--font-mono); font-size:.88em;
+  }
+  .pillar-content table{border-collapse:collapse; width:100%; margin:18px 0; font-size:.88rem; display:block; overflow-x:auto;}
+  .pillar-content th, .pillar-content td{border:1px solid var(--border); padding:7px 10px; text-align:left;}
+  .pillar-content th{background:var(--surface-2); font-family:var(--font-mono); font-size:.75rem; text-transform:uppercase; letter-spacing:.03em;}
+
+  .callout{margin:22px 0; padding:16px 18px; border-radius:var(--radius); border:1px solid var(--border); background:var(--surface-2);}
+  .callout p{margin:0; max-width:none;}
+  .callout p strong{
+    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.04em; font-size:.72rem;
+    display:block; margin-bottom:6px; color:var(--ink-soft);
+  }
+  .callout-perspective{border-left:4px solid var(--ink-faint); background:var(--surface);}
+  .callout-questions{border-left:4px solid var(--accent);}
+  .callout-questions p strong{color:var(--accent-ink);}
+  .callout-summary{background:var(--accent-soft); border-color:var(--accent);}
+  .callout-summary p strong{color:var(--accent-ink);}
+  .callout-summary p{font-size:1rem;}
+
+  .site-footer{margin:80px 0 20px; padding-top:24px; border-top:1px solid var(--border); color:var(--ink-faint); font-size:.8rem; max-width:70ch;}
+
+  .back-to-top{
+    position:fixed; bottom:22px; right:22px; width:44px; height:44px; border-radius:50%;
+    background:var(--accent); color:var(--surface); border:none; display:flex; align-items:center;
+    justify-content:center; box-shadow:var(--shadow); cursor:pointer; opacity:0; pointer-events:none;
+    transition:opacity .2s ease; z-index:30; font-size:1.1rem;
+  }
+  .back-to-top.show{opacity:1; pointer-events:auto;}
+  .back-to-top:focus-visible{outline:2px solid var(--accent-ink); outline-offset:2px;}
+
+  @media (max-width:900px){
+    .app{display:block;}
+    .sidebar{
+      position:fixed; top:0; left:0; height:100dvh; width:280px; transform:translateX(-100%);
+      transition:transform .2s ease; z-index:50;
+    }
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-toggle{
+      display:flex; position:fixed; top:14px; left:14px; z-index:60; width:40px; height:40px;
+      border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--ink);
+      align-items:center; justify-content:center; box-shadow:var(--shadow); cursor:pointer;
+    }
+    .sidebar-backdrop{display:none; position:fixed; inset:0; background:rgba(10,16,28,.45); z-index:40;}
+    .sidebar-backdrop.open{display:block;}
+    .main{padding-top:58px;}
+    .hero h1{font-size:1.9rem;}
+    .sheet-header{padding:18px 18px;}
+  }
+
+  @media print{
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]){
+      --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F4F6F8;
+      --ink:#16223B; --ink-soft:#3A4A5E; --ink-faint:#6B7A8C;
+      --border:#C9D2DC;
+      --accent:#1E5FA8; --accent-ink:#0E3E73; --accent-soft:#E9F1FA;
+      --code-bg:#F2F5F8; --code-border:#C9D2DC;
+      --anchor-arch:#1E5FA8; --anchor-tradeoff:#A8620C; --anchor-scale:#A6293A; --anchor-people:#157A5E;
+      --anchor-arch-bg:#EDF3FA; --anchor-tradeoff-bg:#FBF3E6; --anchor-scale-bg:#FBEAEC; --anchor-people-bg:#EAF6F0;
+      --shadow:none;
+    }
+    body{background:#fff;}
+    .sidebar,.sidebar-toggle,.sidebar-backdrop,.back-to-top{display:none!important;}
+    .app{display:block; max-width:100%;}
+    .main{padding:0;}
+    .wrap{max-width:100%; padding:0 6px;}
+    .hero{padding-top:8px;}
+    .pillar-card{box-shadow:none;}
+    section.pillar{page-break-before:always; margin-top:0;}
+    .sheet-header{box-shadow:none; page-break-after:avoid;}
+    .sheet-header::before,.sheet-header::after{display:none;}
+    .callout,.pillar-content pre,.pillar-content table{break-inside:avoid; page-break-inside:avoid;}
+    .md-h2,.md-h3{break-after:avoid; page-break-after:avoid;}
+    a{color:var(--accent-ink); text-decoration:none;}
+    .site-footer{page-break-before:always;}
+  }
+</style>
+
+<div class="app">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <nav class="sidebar" id="sidebar" aria-label="Study guide navigation">
+    <div class="sidebar-brand">Frontend Field Manual</div>
+    <div class="sidebar-tagline">Senior / Staff Interview Prep</div>
+    <input type="text" class="search-box" id="navSearch" placeholder="Filter topics…" aria-label="Filter topics">
+
+    <div class="nav-group" data-group="fundamentals">
+      <a class="nav-group-title" href="#fundamentals">01 · Core Web Fundamentals</a>
+      <a class="nav-link" href="#fundamentals-html">HTML</a>
+      <a class="nav-link" href="#fundamentals-css">CSS</a>
+      <a class="nav-link" href="#fundamentals-javascript">JavaScript</a>
+      <a class="nav-link" href="#fundamentals-typescript">TypeScript</a>
+    </div>
+
+    <div class="nav-group" data-group="frameworks">
+      <a class="nav-group-title" href="#frameworks">02 · Framework &amp; App Architecture</a>
+      <a class="nav-link" href="#frameworks-react">React</a>
+      <a class="nav-link" href="#frameworks-redux">Redux</a>
+      <a class="nav-link" href="#frameworks-angular">Angular</a>
+      <a class="nav-link" href="#frameworks-nextjs">Next.js</a>
+      <a class="nav-link" href="#frameworks-tailwind">Tailwind CSS</a>
+    </div>
+
+    <div class="nav-group" data-group="system_design">
+      <a class="nav-group-title" href="#system_design">03 · System Design &amp; Architecture</a>
+      <a class="nav-link" href="#system_design-hld">Frontend System Design (HLD)</a>
+      <a class="nav-link" href="#system_design-lld">Frontend System Design (LLD)</a>
+      <a class="nav-link" href="#system_design-machine-coding">Machine Coding</a>
+    </div>
+
+    <div class="nav-group" data-group="dsa">
+      <a class="nav-group-title" href="#dsa">04 · Algorithms &amp; Problem Solving</a>
+      <a class="nav-link" href="#dsa-complexity">Complexity &amp; Trade-offs</a>
+      <a class="nav-link" href="#dsa-arrays-strings">Arrays / Strings / Hashing</a>
+      <a class="nav-link" href="#dsa-stacks-queues">Stacks, Queues, Monotonic</a>
+      <a class="nav-link" href="#dsa-linked-lists">Linked Lists</a>
+      <a class="nav-link" href="#dsa-trees-tries">Trees, BSTs &amp; Tries</a>
+      <a class="nav-link" href="#dsa-graphs">Graphs</a>
+      <a class="nav-link" href="#dsa-recursion-backtracking">Recursion &amp; Backtracking</a>
+      <a class="nav-link" href="#dsa-dynamic-programming">Dynamic Programming</a>
+      <a class="nav-link" href="#dsa-sorting-searching-heaps">Sorting, Searching, Heaps</a>
+      <a class="nav-link" href="#dsa-intervals-caching">Intervals &amp; Caching</a>
+    </div>
+
+    <div class="nav-group" data-group="ops_excellence">
+      <a class="nav-group-title" href="#ops_excellence">05 · Engineering Excellence &amp; Ops</a>
+      <a class="nav-link" href="#ops_excellence-performance">Performance Optimization</a>
+      <a class="nav-link" href="#ops_excellence-security">Web Performance &amp; Security</a>
+      <a class="nav-link" href="#ops_excellence-git">Git &amp; GitHub</a>
+      <a class="nav-link" href="#ops_excellence-ai-assisted">AI-Assisted Development</a>
+    </div>
+
+    <div class="nav-group" data-group="leadership">
+      <a class="nav-group-title" href="#leadership">06 · Cross-functional Leadership</a>
+      <a class="nav-link" href="#leadership-conflict-resolution">Conflict &amp; Influence</a>
+      <a class="nav-link" href="#leadership-mentorship">Mentorship &amp; Succession</a>
+      <a class="nav-link" href="#leadership-decision-making">Decisions Under Ambiguity</a>
+      <a class="nav-link" href="#leadership-failure-incidents">Failure &amp; Blameless Culture</a>
+      <a class="nav-link" href="#leadership-stakeholder-management">Stakeholder Management</a>
+      <a class="nav-link" href="#leadership-prioritization">Prioritization &amp; Saying No</a>
+      <a class="nav-link" href="#leadership-team-culture">Team Culture &amp; Safety</a>
+      <a class="nav-link" href="#leadership-crisis-change">Crisis &amp; Change</a>
+      <a class="nav-link" href="#leadership-sustainable-leadership">Sustainable Leadership</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="wrap">
+      <header class="hero">
+        <div class="hero-eyebrow">Senior / Staff Frontend Interview Prep</div>
+        <h1>Frontend Field Manual</h1>
+        <p class="hero-sub">Six pillars, eighteen source topics, rebuilt from a raw junior-level Q&amp;A bank into the trade-off reasoning, system diagrams, and stakeholder framing an actual senior/staff loop tests. Skim the pillar map, then jump straight to a topic from the sidebar.</p>
+        <div class="hero-legend">
+          <span class="legend-item"><span class="anchor-badge">🏗️</span> Architecture / Pattern</span>
+          <span class="legend-item"><span class="anchor-badge">⚖️</span> Trade-off — what you give up</span>
+          <span class="legend-item"><span class="anchor-badge">📉</span> Scale / Bottleneck</span>
+          <span class="legend-item"><span class="anchor-badge">👥</span> People / Stakeholder</span>
+        </div>
+      </header>
+
+      <section class="overview" aria-labelledby="overview-label">
+        <h2 class="section-label" id="overview-label">Core Subject Pillars</h2>
+        <p class="section-sub">The six strategic surfaces a senior/staff frontend loop actually probes — click any card to jump in.</p>
+        <div class="pillar-grid">
+          <a class="pillar-card" href="#fundamentals">
+            <div class="card-num">Sheet 01 / 06</div>
+            <h3>Core Web Fundamentals</h3>
+            <p>HTML, CSS, JavaScript, TypeScript — the substrate every architectural decision sits on.</p>
+            <div class="card-tags"><span>HTML</span><span>CSS</span><span>JS</span><span>TS</span></div>
+          </a>
+          <a class="pillar-card" href="#frameworks">
+            <div class="card-num">Sheet 02 / 06</div>
+            <h3>Framework &amp; App Architecture</h3>
+            <p>React, Redux, Angular, Next.js, Tailwind — judgment over API trivia.</p>
+            <div class="card-tags"><span>React</span><span>Redux</span><span>Angular</span><span>Next.js</span><span>Tailwind</span></div>
+          </a>
+          <a class="pillar-card" href="#system_design">
+            <div class="card-num">Sheet 03 / 06</div>
+            <h3>System Design &amp; Architecture</h3>
+            <p>High-level, low-level, and machine coding — the highest-signal part of a staff loop.</p>
+            <div class="card-tags"><span>HLD</span><span>LLD</span><span>Machine Coding</span></div>
+          </a>
+          <a class="pillar-card" href="#dsa">
+            <div class="card-num">Sheet 04 / 06</div>
+            <h3>Algorithms &amp; Problem Solving</h3>
+            <p>Patterns and complexity reasoning, applied to real frontend bottlenecks.</p>
+            <div class="card-tags"><span>Patterns</span><span>Complexity</span><span>Frontend DSA</span></div>
+          </a>
+          <a class="pillar-card" href="#ops_excellence">
+            <div class="card-num">Sheet 05 / 06</div>
+            <h3>Engineering Excellence &amp; Ops</h3>
+            <p>Performance, security, Git workflow, and AI-assisted development at scale.</p>
+            <div class="card-tags"><span>Perf</span><span>Security</span><span>Git</span><span>AI Dev</span></div>
+          </a>
+          <a class="pillar-card" href="#leadership">
+            <div class="card-num">Sheet 06 / 06</div>
+            <h3>Cross-functional Leadership</h3>
+            <p>Behavioral and leadership judgment — scope of influence, not technical trivia.</p>
+            <div class="card-tags"><span>STAR</span><span>Influence</span><span>Judgment</span></div>
+          </a>
+        </div>
+      </section>
+
+      <section class="pillar" id="fundamentals">
+        <div class="sheet-header">
+          <div class="sheet-meta"><span class="sheet-num">Sheet 01 / 06</span><span>Core Pillar</span></div>
+          <h2 class="sheet-title">Core Web Fundamentals</h2>
+          <p class="sheet-blurb">HTML, CSS, JavaScript, TypeScript — the substrate every architectural decision you'll defend in a staff-level interview sits on top of.</p>
+          <div class="sheet-tags">
+            <a class="tag" href="#fundamentals-html">HTML</a>
+            <a class="tag" href="#fundamentals-css">CSS</a>
+            <a class="tag" href="#fundamentals-javascript">JavaScript</a>
+            <a class="tag" href="#fundamentals-typescript">TypeScript</a>
+          </div>
+        </div>
+        <div class="pillar-content" id="content-fundamentals"><p class="loading">Loading section…</p></div>
+      </section>
+
+      <section class="pillar" id="frameworks">
+        <div class="sheet-header">
+          <div class="sheet-meta"><span class="sheet-num">Sheet 02 / 06</span><span>Core Pillar</span></div>
+          <h2 class="sheet-title">Framework &amp; Application Architecture</h2>
+          <p class="sheet-blurb">React, Redux, Angular, Next.js, Tailwind — framework interviews at senior level test architectural judgment, not API trivia.</p>
+          <div class="sheet-tags">
+            <a class="tag" href="#frameworks-react">React</a>
+            <a class="tag" href="#frameworks-redux">Redux</a>
+            <a class="tag" href="#frameworks-angular">Angular</a>
+            <a class="tag" href="#frameworks-nextjs">Next.js</a>
+            <a class="tag" href="#frameworks-tailwind">Tailwind CSS</a>
+          </div>
+        </div>
+        <div class="pillar-content" id="content-frameworks"><p class="loading">Loading section…</p></div>
+      </section>
+
+      <section class="pillar" id="system_design">
+        <div class="sheet-header">
+          <div class="sheet-meta"><span class="sheet-num">Sheet 03 / 06</span><span>Highest Signal</span></div>
+          <h2 class="sheet-title">System Design &amp; Architecture</h2>
+          <p class="sheet-blurb">High-level design, low-level component design, and machine coding — the pillar that tests architectural judgment under ambiguity, not memorized answers.</p>
+          <div class="sheet-tags">
+            <a class="tag" href="#system_design-hld">Frontend System Design (HLD)</a>
+            <a class="tag" href="#system_design-lld">Frontend System Design (LLD)</a>
+            <a class="tag" href="#system_design-machine-coding">Machine Coding</a>
+          </div>
+        </div>
+        <div class="pillar-content" id="content-system_design"><p class="loading">Loading section…</p></div>
+      </section>
+
+      <section class="pillar" id="dsa">
+        <div class="sheet-header">
+          <div class="sheet-meta"><span class="sheet-num">Sheet 04 / 06</span><span>Core Pillar</span></div>
+          <h2 class="sheet-title">Algorithms &amp; Problem Solving</h2>
+          <p class="sheet-blurb">At senior level the bar shifts from "can you solve it" to how you reason about complexity trade-offs and communicate approach out loud.</p>
+          <div class="sheet-tags">
+            <a class="tag" href="#dsa-complexity">Complexity</a>
+            <a class="tag" href="#dsa-arrays-strings">Arrays/Strings</a>
+            <a class="tag" href="#dsa-trees-tries">Trees/Tries</a>
+            <a class="tag" href="#dsa-graphs">Graphs</a>
+            <a class="tag" href="#dsa-dynamic-programming">DP</a>
+          </div>
+        </div>
+        <div class="pillar-content" id="content-dsa"><p class="loading">Loading section…</p></div>
+      </section>
+
+      <section class="pillar" id="ops_excellence">
+        <div class="sheet-header">
+          <div class="sheet-meta"><span class="sheet-num">Sheet 05 / 06</span><span>Core Pillar</span></div>
+          <h2 class="sheet-title">Engineering Excellence &amp; Operations</h2>
+          <p class="sheet-blurb">The difference between someone who ships features and someone trusted to keep a production system fast, secure, and stable.</p>
+          <div class="sheet-tags">
+            <a class="tag" href="#ops_excellence-performance">Performance</a>
+            <a class="tag" href="#ops_excellence-security">Security</a>
+            <a class="tag" href="#ops_excellence-git">Git &amp; GitHub</a>
+            <a class="tag" href="#ops_excellence-ai-assisted">AI-Assisted Dev</a>
+          </div>
+        </div>
+        <div class="pillar-content" id="content-ops_excellence"><p class="loading">Loading section…</p></div>
+      </section>
+
+      <section class="pillar" id="leadership">
+        <div class="sheet-header">
+          <div class="sheet-meta"><span class="sheet-num">Sheet 06 / 06</span><span>Core Pillar</span></div>
+          <h2 class="sheet-title">Cross-functional Leadership</h2>
+          <p class="sheet-blurb">Behavioral and leadership questions carry disproportionate weight at senior/staff level — they test judgment and scope of influence, not technical trivia.</p>
+          <div class="sheet-tags">
+            <a class="tag" href="#leadership-conflict-resolution">Conflict &amp; Influence</a>
+            <a class="tag" href="#leadership-decision-making">Decisions</a>
+            <a class="tag" href="#leadership-crisis-change">Crisis &amp; Change</a>
+          </div>
+        </div>
+        <div class="pillar-content" id="content-leadership"><p class="loading">Loading section…</p></div>
+      </section>
+
+      <footer class="site-footer">
+        Synthesized from a raw interview-question source bank into senior/staff-level framing. Frameworks, APIs, and version-specific claims (React 19 Actions, RSC defaults, etc.) should be spot-checked against current docs before interview day — the underlying source material carries a forward-looking 2026 framing that may drift from what a given interviewer expects.
+      </footer>
+    </div>
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var ID_MAP = {
+    fundamentals: ["html","css","javascript","typescript"],
+    frameworks: ["react","redux","angular","nextjs","tailwind"],
+    system_design: ["hld","lld","machine-coding"],
+    dsa: ["complexity","arrays-strings","stacks-queues","linked-lists","trees-tries","graphs","recursion-backtracking","dynamic-programming","sorting-searching-heaps","intervals-caching"],
+    ops_excellence: ["performance","security","git","ai-assisted"],
+    leadership: ["conflict-resolution","mentorship","decision-making","failure-incidents","stakeholder-management","prioritization","team-culture","crisis-change","sustainable-leadership"]
+  };
+
+  var FILES = {
+    fundamentals: "fundamentals.md",
+    frameworks: "frameworks.md",
+    system_design: "system_design.md",
+    dsa: "dsa.md",
+    ops_excellence: "ops_excellence.md",
+    leadership: "leadership.md"
+  };
+
+  var ANCHORS = [
+    ["🏗️","arch"],
+    ["⚖️","tradeoff"],
+    ["📉","scale"],
+    ["👥","people"]
+  ];
+
+  var renderer = new marked.Renderer();
+  renderer.heading = function(text, level){
+    var newLevel = Math.min(level + 1, 6);
+    return "<h" + newLevel + ' class="md-heading md-h' + level + '">' + text + "</h" + newLevel + ">";
+  };
+  marked.setOptions({ renderer: renderer, headerIds: false, mangle: false });
+
+  function styleAnchorLi(li){
+    var text = li.textContent || "";
+    var trimmed = text.replace(/^\s+/, "");
+    for (var i = 0; i < ANCHORS.length; i++){
+      var emoji = ANCHORS[i][0], cls = ANCHORS[i][1];
+      if (trimmed.indexOf(emoji) === 0){
+        li.classList.add("anchor-" + cls);
+        li.innerHTML = li.innerHTML.replace(emoji, '<span class="anchor-badge">' + emoji + "</span>");
+        break;
+      }
+    }
+  }
+
+  function wrapCallout(p, type){
+    var div = document.createElement("div");
+    div.className = "callout callout-" + type;
+    p.parentNode.insertBefore(div, p);
+    div.appendChild(p);
+    var next = div.nextElementSibling;
+    if ((type === "perspective" || type === "questions") && next && (next.tagName === "UL" || next.tagName === "OL")){
+      div.appendChild(next);
+    }
+  }
+
+  function enhancePillar(container, key){
+    var idList = ID_MAP[key] || [];
+    var headings = container.querySelectorAll(":scope > h3.md-h2");
+    headings.forEach(function(h, i){
+      if (idList[i]) h.id = key + "-" + idList[i];
+    });
+
+    var firstP = container.querySelector(":scope > p:first-child");
+    if (firstP) firstP.classList.add("pillar-intro");
+
+    var paras = Array.prototype.slice.call(container.querySelectorAll("p"));
+    paras.forEach(function(p){
+      var strong = p.querySelector("strong");
+      if (!strong) return;
+      var label = (strong.textContent || "").trim();
+      if (label.indexOf("Senior Perspective") === 0) wrapCallout(p, "perspective");
+      else if (label.indexOf("Predictive Interview Questions") === 0) wrapCallout(p, "questions");
+      else if (label.indexOf("Executive Summary Cheat Sheet") === 0) wrapCallout(p, "summary");
+    });
+
+    var lis = container.querySelectorAll("li");
+    lis.forEach(function(li){ styleAnchorLi(li); });
+  }
+
+  function loadPillar(key){
+    var container = document.getElementById("content-" + key);
+    return fetch(FILES[key]).then(function(res){
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.text();
+    }).then(function(md){
+      md = md.replace(/^#\s*Pillar:.*\n/, "");
+      container.innerHTML = marked.parse(md);
+      enhancePillar(container, key);
+    }).catch(function(err){
+      container.innerHTML = '<p class="loading">Could not load this section (' + err.message + ").</p>";
+    });
+  }
+
+  var keys = Object.keys(FILES);
+  Promise.all(keys.map(loadPillar)).then(setupScrollSpy);
+
+  /* ---------- Scrollspy ---------- */
+  function setupScrollSpy(){
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav-link, .nav-group-title"));
+    var linkMap = {};
+    navLinks.forEach(function(a){ linkMap[a.getAttribute("href").slice(1)] = a; });
+
+    var headingEls = Array.prototype.slice.call(document.querySelectorAll("main [id]")).filter(function(el){
+      return linkMap.hasOwnProperty(el.id);
+    });
+
+    var ticking = false;
+    function onScroll(){
+      ticking = false;
+      var scrollPos = window.scrollY + 120;
+      var currentId = null;
+      for (var i = 0; i < headingEls.length; i++){
+        if (headingEls[i].offsetTop <= scrollPos) currentId = headingEls[i].id;
+        else break;
+      }
+      navLinks.forEach(function(a){ a.classList.remove("active"); });
+      if (currentId && linkMap[currentId]) linkMap[currentId].classList.add("active");
+    }
+    document.addEventListener("scroll", function(){
+      if (!ticking){ requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+    onScroll();
+  }
+
+  /* ---------- Search filter ---------- */
+  var searchInput = document.getElementById("navSearch");
+  searchInput.addEventListener("input", function(){
+    var q = searchInput.value.trim().toLowerCase();
+    document.querySelectorAll(".nav-group").forEach(function(group){
+      var groupTitle = group.querySelector(".nav-group-title");
+      var groupMatches = !q || groupTitle.textContent.toLowerCase().indexOf(q) !== -1;
+      var anyChildMatch = false;
+      group.querySelectorAll(".nav-link").forEach(function(link){
+        var match = groupMatches || link.textContent.toLowerCase().indexOf(q) !== -1;
+        link.style.display = match ? "" : "none";
+        if (match) anyChildMatch = true;
+      });
+      group.style.display = (groupMatches || anyChildMatch) ? "" : "none";
+    });
+  });
+
+  /* ---------- Mobile sidebar ---------- */
+  var sidebar = document.getElementById("sidebar");
+  var toggle = document.getElementById("sidebarToggle");
+  var backdrop = document.getElementById("sidebarBackdrop");
+  function closeSidebar(){ sidebar.classList.remove("open"); backdrop.classList.remove("open"); }
+  toggle.addEventListener("click", function(){
+    sidebar.classList.toggle("open");
+    backdrop.classList.toggle("open");
+  });
+  backdrop.addEventListener("click", closeSidebar);
+  sidebar.addEventListener("click", function(e){
+    if (e.target.classList.contains("nav-link") || e.target.classList.contains("nav-group-title")) closeSidebar();
+  });
+
+  /* ---------- Back to top ---------- */
+  var backToTop = document.getElementById("backToTop");
+  document.addEventListener("scroll", function(){
+    if (window.scrollY > 700) backToTop.classList.add("show");
+    else backToTop.classList.remove("show");
+  }, { passive: true });
+  backToTop.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
